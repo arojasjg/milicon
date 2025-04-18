@@ -1,4 +1,4 @@
-package com.ecommerce.milicons.userservice;
+package com.ecommerce.milicon.userservice;
 
 import com.ecommerce.milicons.userservice.application.dto.auth.LoginRequest;
 import com.ecommerce.milicons.userservice.application.dto.auth.RegisterRequest;

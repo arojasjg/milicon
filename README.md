@@ -32,8 +32,8 @@ La forma más sencilla de ejecutar todo el sistema es utilizando Docker Compose:
 
 ```bash
 # Clonar el repositorio
-git clone https://github.com/arojas/milicon-ecommerce.git
-cd milicon-ecommerce
+git clone https://github.com/arojas/milicon.git
+cd milicon
 
 # Iniciar todos los servicios
 docker-compose up -d
@@ -48,8 +48,8 @@ Esto iniciará todos los microservicios, bases de datos y frontend.
 1. Clonar el repositorio:
 
    ```bash
-   git clone https://github.com/arojas/milicon-ecommerce.git
-   cd milicon-ecommerce
+   git clone https://github.com/arojas/milicon.git
+   cd milicon
    ```
 
 2. Configurar las bases de datos MySQL:

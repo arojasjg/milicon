@@ -1,4 +1,5 @@
-package com.ecommerce.milicons.userservice.application.service;
+
+package com.ecommerce.milicon.userservice.application.service;
 
 import com.ecommerce.milicons.userservice.application.dto.user.UserResponse;
 import com.ecommerce.milicons.userservice.application.dto.user.UserUpdateRequest;

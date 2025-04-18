@@ -1,9 +1,10 @@
-package com.ecommerce.milicons.userservice.infrastructure.rest;
+package com.ecommerce.milicon.userservice.infrastructure.rest;
 
 import com.ecommerce.milicons.userservice.application.dto.user.UserResponse;
 import com.ecommerce.milicons.userservice.application.dto.user.UserUpdateRequest;
 import com.ecommerce.milicons.userservice.application.service.UserService;
 import com.ecommerce.milicons.userservice.infrastructure.security.JwtTokenProvider;
+import com.ecommerce.sports.userservice.infrastructure.rest.UserController;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

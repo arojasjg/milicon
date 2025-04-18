@@ -1,5 +1,6 @@
 package com.ecommerce.milicons.productservice.application.service;
 
+import com.ecommerce.milicon.productservice.application.service.ProductServiceImpl;
 import com.ecommerce.milicons.productservice.application.dto.product.ProductRequest;
 import com.ecommerce.milicons.productservice.application.dto.product.ProductResponse;
 import com.ecommerce.milicons.productservice.application.exception.CategoryNotFoundException;
