@@ -1,0 +1,148 @@
+/* ProductRecommendations.css - Styles for product recommendations component */
+
+.product-recommendations {
+  margin-bottom: 2.5rem;
+}
+
+.product-recommendations h2 {
+  font-size: 1.5rem;
+  color: #333;
+  margin-bottom: 1.5rem;
+}
+
+.recommendation-list {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+}
+
+.recommendation-item {
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.recommendation-item:hover {
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  transform: translateY(-3px);
+}
+
+.recommendation-image {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+}
+
+.recommendation-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.recommendation-item:hover .recommendation-image img {
+  transform: scale(1.05);
+}
+
+.recommendation-details {
+  padding: 1rem;
+}
+
+.recommendation-name {
+  font-weight: 500;
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+  color: #333;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.recommendation-price {
+  font-weight: 600;
+  color: #4285f4;
+  margin-bottom: 0.5rem;
+}
+
+.recommendation-rating {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.recommendation-rating .fa-star {
+  color: #e0e0e0;
+  font-size: 0.8rem;
+  margin-right: 1px;
+}
+
+.recommendation-rating .fa-star.filled {
+  color: #ffc107;
+}
+
+.recommendation-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1rem;
+}
+
+.view-product-btn {
+  padding: 0.5rem 0;
+  font-size: 0.9rem;
+  color: #4285f4;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.15s ease;
+}
+
+.view-product-btn:hover {
+  color: #3367d6;
+  text-decoration: underline;
+}
+
+.quick-add-btn {
+  background-color: transparent;
+  border: none;
+  color: #6c757d;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.quick-add-btn:hover {
+  color: #4285f4;
+}
+
+.loading-recommendations {
+  text-align: center;
+  padding: 2rem 0;
+  color: #6c757d;
+}
+
+.empty-recommendations {
+  text-align: center;
+  padding: 2rem 0;
+  color: #6c757d;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}
+
+@media (max-width: 992px) {
+  .recommendation-list {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .recommendation-list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 576px) {
+  .recommendation-list {
+    grid-template-columns: 1fr;
+  }
+} 

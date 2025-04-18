@@ -22,7 +22,7 @@ const api = axios.create({
  */
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`;
     }
@@ -34,20 +34,58 @@ api.interceptors.request.use(
 );
 
 /**
- * Response interceptor to handle common errors
+ * Response interceptor to handle common errors and token refreshing
  */
 api.interceptors.response.use(
   (response) => {
     return response.data;
   },
-  (error) => {
-    // Handle expired token
-    if (error.response && error.response.status === 401) {
-      // Clear invalid token
-      localStorage.removeItem('token');
-      // Redirect to login page if not already there
-      if (window.location.pathname !== '/login') {
-        window.location.href = '/login';
+  async (error) => {
+    const originalRequest = error.config;
+    
+    // If error is 401 (Unauthorized) and we haven't retried yet
+    if (error.response && error.response.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+      
+      try {
+        // Check if we're already on the login page or trying to refresh token
+        // This prevents infinite refresh loops
+        if (window.location.pathname === '/login' || originalRequest.url.includes('refresh-token')) {
+          throw new Error('Already on login page or trying to refresh token');
+        }
+        
+        // Try to refresh the token
+        const response = await axios.post(`${API_URL}/auth/refresh-token`, {}, {
+          headers: { 'Content-Type': 'application/json' }
+        });
+        
+        const newToken = response.data.token;
+        
+        if (newToken) {
+          // Store new token in the same storage used before
+          if (localStorage.getItem('rememberMe') === 'true') {
+            localStorage.setItem('token', newToken);
+          } else {
+            sessionStorage.setItem('token', newToken);
+          }
+          
+          // Update authorization header and retry original request
+          api.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
+          originalRequest.headers['Authorization'] = `Bearer ${newToken}`;
+          
+          return api(originalRequest);
+        }
+      } catch (refreshError) {
+        console.error('Token refresh failed:', refreshError);
+        
+        // Clear invalid token
+        localStorage.removeItem('token');
+        sessionStorage.removeItem('token');
+        
+        // Redirect to login page if not already there
+        if (window.location.pathname !== '/login') {
+          window.location.href = '/login?session_expired=true';
+        }
       }
     }
     

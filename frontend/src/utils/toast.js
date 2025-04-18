@@ -1,3 +1,4 @@
+
 /**
  * Global toast notification utility
  * Provides an easier way to use notifications without hooks

@@ -30,6 +30,16 @@ const userService = {
   logout: () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    sessionStorage.removeItem('token');
+  },
+  
+  /**
+   * Refresh authentication token
+   * 
+   * @returns {Promise} Promise with new auth token
+   */
+  refreshToken: () => {
+    return api.post('/auth/refresh-token');
   },
   
   /**
@@ -59,6 +69,36 @@ const userService = {
    */
   changePassword: (passwordData) => {
     return api.post('/users/change-password', passwordData);
+  },
+  
+  /**
+   * Request password reset
+   * 
+   * @param {string} email - User email
+   * @returns {Promise} Promise with success status
+   */
+  requestPasswordReset: (email) => {
+    return api.post('/auth/forgot-password', { email });
+  },
+
+  /**
+   * Validate password reset token
+   * 
+   * @param {string} token - Reset password token
+   * @returns {Promise} Promise with token validation status
+   */
+  validateResetToken: (token) => {
+    return api.get(`/auth/reset-password/validate?token=${token}`);
+  },
+
+  /**
+   * Reset password
+   * 
+   * @param {Object} resetData - Object containing email, token, and new password
+   * @returns {Promise} Promise with success status
+   */
+  resetPassword: (resetData) => {
+    return api.post('/auth/reset-password', resetData);
   },
   
   /**
@@ -102,13 +142,13 @@ const userService = {
   },
   
   /**
-   * Set address as default
+   * Set default address
    * 
    * @param {string} addressId - Address ID to set as default
    * @returns {Promise} Promise with updated address
    */
   setDefaultAddress: (addressId) => {
-    return api.put(`/users/addresses/${addressId}/default`);
+    return api.post(`/users/addresses/${addressId}/default`);
   },
   
   /**

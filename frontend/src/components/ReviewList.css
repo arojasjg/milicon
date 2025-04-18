@@ -1,0 +1,137 @@
+/* ReviewList.css - Styles for review list component */
+
+.review-list {
+  margin-top: 1.5rem;
+}
+
+.review-item {
+  padding: 1.5rem 0;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.review-item:last-child {
+  border-bottom: none;
+}
+
+.review-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.review-user-info {
+  display: flex;
+  align-items: center;
+}
+
+.review-user-name {
+  font-weight: 500;
+  color: #333;
+  margin-right: 0.5rem;
+}
+
+.verified-badge {
+  font-size: 0.8rem;
+  color: #28a745;
+  background-color: rgba(40, 167, 69, 0.1);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+.review-date {
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+.review-rating {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.review-stars {
+  display: flex;
+  margin-right: 1rem;
+}
+
+.review-star {
+  color: #e0e0e0;
+  font-size: 1.1rem;
+  margin-right: 0.1rem;
+}
+
+.review-star.filled {
+  color: #ffc107;
+}
+
+.review-title {
+  font-weight: 600;
+  color: #333;
+}
+
+.review-content {
+  color: #333;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.review-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.review-helpful-btn,
+.review-report-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.9rem;
+  color: #6c757d;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.review-helpful-btn:hover,
+.review-report-btn:hover {
+  color: #4285f4;
+}
+
+.reviews-loading {
+  padding: 2rem 0;
+  text-align: center;
+  color: #6c757d;
+}
+
+.reviews-error {
+  padding: 1.5rem;
+  margin: 1rem 0;
+  background-color: #f8d7da;
+  color: #721c24;
+  border-radius: 4px;
+}
+
+.no-reviews {
+  padding: 2rem 0;
+  text-align: center;
+  color: #6c757d;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  margin: 1rem 0;
+}
+
+@media (max-width: 576px) {
+  .review-header {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .review-rating {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .review-stars {
+    margin-right: 0;
+  }
+} 

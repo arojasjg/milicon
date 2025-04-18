@@ -1,7 +1,12 @@
 import api from './api';
+import mockProductService from './mockProductService';
+
+// Check if we should use mock data (can be enabled via environment variable)
+const USE_MOCK_DATA = process.env.REACT_APP_USE_MOCK_DATA === 'true' || true; // Default to true for development
 
 /**
  * Service for product-related API calls
+ * Will use mock data if the backend is unavailable or in development mode
  */
 const productService = {
   /**
@@ -11,6 +16,9 @@ const productService = {
    * @returns {Promise} Promise with paginated products
    */
   getProducts: (params = {}) => {
+    if (USE_MOCK_DATA) {
+      return mockProductService.getProducts(params);
+    }
     return api.get('/products', params);
   },
   
@@ -21,6 +29,9 @@ const productService = {
    * @returns {Promise} Promise with product details
    */
   getProductById: (productId) => {
+    if (USE_MOCK_DATA) {
+      return mockProductService.getProductById(productId);
+    }
     return api.get(`/products/${productId}`);
   },
   
@@ -32,6 +43,9 @@ const productService = {
    * @returns {Promise} Promise with paginated products in category
    */
   getProductsByCategory: (categoryId, params = {}) => {
+    if (USE_MOCK_DATA) {
+      return mockProductService.getProductsByCategory(categoryId, params);
+    }
     return api.get('/products', { ...params, category: categoryId });
   },
   
@@ -42,6 +56,9 @@ const productService = {
    * @returns {Promise} Promise with featured products
    */
   getFeaturedProducts: (limit = 8) => {
+    if (USE_MOCK_DATA) {
+      return mockProductService.getFeaturedProducts(limit);
+    }
     return api.get('/products/featured', { limit });
   },
   
@@ -53,6 +70,9 @@ const productService = {
    * @returns {Promise} Promise with search results
    */
   searchProducts: (query, params = {}) => {
+    if (USE_MOCK_DATA) {
+      return mockProductService.searchProducts(query, params);
+    }
     return api.get('/products', { ...params, search: query });
   },
   
@@ -64,6 +84,9 @@ const productService = {
    * @returns {Promise} Promise with product reviews
    */
   getProductReviews: (productId, params = {}) => {
+    if (USE_MOCK_DATA) {
+      return mockProductService.getProductReviews(productId, params);
+    }
     return api.get(`/products/${productId}/reviews`, params);
   },
   
@@ -75,6 +98,9 @@ const productService = {
    * @returns {Promise} Promise with created review
    */
   submitReview: (productId, reviewData) => {
+    if (USE_MOCK_DATA) {
+      return mockProductService.submitReview(productId, reviewData);
+    }
     return api.post(`/products/${productId}/reviews`, reviewData);
   },
   
@@ -84,6 +110,9 @@ const productService = {
    * @returns {Promise} Promise with categories
    */
   getCategories: () => {
+    if (USE_MOCK_DATA) {
+      return mockProductService.getCategories();
+    }
     return api.get('/categories');
   },
   
@@ -94,6 +123,9 @@ const productService = {
    * @returns {Promise} Promise with category details
    */
   getCategoryById: (categoryId) => {
+    if (USE_MOCK_DATA) {
+      return mockProductService.getCategoryById(categoryId);
+    }
     return api.get(`/categories/${categoryId}`);
   },
   
@@ -106,6 +138,9 @@ const productService = {
    * @returns {Promise} Promise with created product
    */
   createProduct: (productData) => {
+    if (USE_MOCK_DATA) {
+      return mockProductService.createProduct(productData);
+    }
     return api.post('/products', productData);
   },
   
@@ -117,6 +152,9 @@ const productService = {
    * @returns {Promise} Promise with updated product
    */
   updateProduct: (productId, productData) => {
+    if (USE_MOCK_DATA) {
+      return mockProductService.updateProduct(productId, productData);
+    }
     return api.put(`/products/${productId}`, productData);
   },
   
@@ -127,6 +165,9 @@ const productService = {
    * @returns {Promise} Promise with success status
    */
   deleteProduct: (productId) => {
+    if (USE_MOCK_DATA) {
+      return mockProductService.deleteProduct(productId);
+    }
     return api.delete(`/products/${productId}`);
   },
   
@@ -139,6 +180,9 @@ const productService = {
    * @returns {Promise} Promise with image URL
    */
   uploadProductImage: (productId, formData, onProgress) => {
+    if (USE_MOCK_DATA) {
+      return mockProductService.uploadProductImage(productId, formData);
+    }
     return api.upload(`/products/${productId}/image`, formData, onProgress);
   },
 };

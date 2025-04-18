@@ -97,6 +97,36 @@ export const fetchOrderDetails = createAsyncThunk(
   }
 );
 
+// Create order thunk
+export const createOrder = createAsyncThunk(
+  'order/createOrder',
+  async (orderData, { rejectWithValue, dispatch }) => {
+    try {
+      // This would normally be an API call
+      // For mock purposes, we'll simulate a successful order creation
+      const response = {
+        id: `order-${Date.now()}`,
+        date: new Date().toISOString(),
+        status: 'processing',
+        items: orderData.items,
+        shippingAddress: orderData.shippingAddress,
+        billingAddress: orderData.billingAddress || orderData.shippingAddress,
+        paymentMethod: orderData.paymentMethod,
+        shippingMethod: orderData.shippingMethod,
+        totalPrice: orderData.total,
+        trackingNumber: null
+      };
+      
+      // Clear cart after successful order
+      dispatch({ type: 'cart/clearCart' });
+      
+      return response;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || { message: 'Failed to create order' });
+    }
+  }
+);
+
 const initialState = {
   orders: [],
   currentOrder: null,
@@ -140,6 +170,21 @@ const orderSlice = createSlice({
       .addCase(fetchOrderDetails.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || 'Failed to fetch order details';
+      })
+      
+      // Create order cases
+      .addCase(createOrder.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(createOrder.fulfilled, (state, action) => {
+        state.loading = false;
+        state.orders = [action.payload, ...state.orders];
+        state.currentOrder = action.payload;
+      })
+      .addCase(createOrder.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload?.message || 'Failed to create order';
       });
   }
 });
