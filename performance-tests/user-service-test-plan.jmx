@@ -1,0 +1,14 @@
+<jmeterTestPlan>
+  <hashTree>
+    <ResultCollector>
+      <objProp>
+        <name>Save Responses to a file</name>
+        <value class="java.lang.String">
+          <stringProp name="filename"></stringProp>
+        </value>
+      </objProp>
+      <stringProp name="filename"></stringProp>
+    </ResultCollector>
+    <hashTree/>
+  </hashTree>
+</jmeterTestPlan> 

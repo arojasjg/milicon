@@ -1,0 +1,134 @@
+.notification-container {
+  position: fixed;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  pointer-events: none; /* Container shouldn't block interactions */
+  padding: 20px;
+  width: auto;
+  max-width: 450px;
+}
+
+.notification-container > * {
+  pointer-events: auto; /* Individual notifications should be interactive */
+}
+
+/* Position variants */
+.notification-top-right {
+  top: 0;
+  right: 0;
+  align-items: flex-end;
+}
+
+.notification-top-left {
+  top: 0;
+  left: 0;
+  align-items: flex-start;
+}
+
+.notification-bottom-right {
+  bottom: 0;
+  right: 0;
+  align-items: flex-end;
+  flex-direction: column-reverse;
+}
+
+.notification-bottom-left {
+  bottom: 0;
+  left: 0;
+  align-items: flex-start;
+  flex-direction: column-reverse;
+}
+
+.notification-top-center {
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  align-items: center;
+}
+
+.notification-bottom-center {
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  align-items: center;
+  flex-direction: column-reverse;
+}
+
+/* Adjust animation based on position */
+.notification-top-right .notification-item,
+.notification-bottom-right .notification-item {
+  animation-name: slide-in-right;
+}
+
+.notification-top-left .notification-item,
+.notification-bottom-left .notification-item {
+  animation-name: slide-in-left;
+}
+
+.notification-top-center .notification-item,
+.notification-bottom-center .notification-item {
+  animation-name: slide-in-center;
+}
+
+/* Animation for right positions */
+@keyframes slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Animation for left positions */
+@keyframes slide-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Animation for center positions */
+@keyframes slide-in-center {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Media queries for responsive layout */
+@media (max-width: 768px) {
+  .notification-container {
+    padding: 10px;
+    max-width: 100%;
+    width: 100%;
+    right: 0;
+    left: 0;
+    transform: none;
+  }
+  
+  .notification-top-center,
+  .notification-bottom-center,
+  .notification-top-right,
+  .notification-top-left,
+  .notification-bottom-right,
+  .notification-bottom-left {
+    left: 0;
+    right: 0;
+    transform: none;
+    align-items: center;
+  }
+} 

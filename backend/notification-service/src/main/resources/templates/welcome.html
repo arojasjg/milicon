@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Bienvenido a Ecommerce Deportivo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            text-align: center;
+        }
+        .content {
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        .footer {
+            text-align: center;
+            padding: 10px;
+            font-size: 12px;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>¡Bienvenido a Ecommerce Deportivo!</h1>
+    </div>
+    <div class="content">
+        <p>Hola <strong th:text="${name}">Usuario</strong>,</p>
+        <p>Gracias por registrarte en nuestra tienda en línea. Estamos emocionados de tenerte como parte de nuestra comunidad.</p>
+        <p>Con tu cuenta, puedes:</p>
+        <ul>
+            <li>Comprar productos deportivos de alta calidad</li>
+            <li>Seguir el estado de tus pedidos</li>
+            <li>Guardar tus productos favoritos</li>
+            <li>Recibir ofertas exclusivas</li>
+        </ul>
+        <p>Si tienes alguna pregunta, no dudes en contactarnos.</p>
+        <p>¡Esperamos que disfrutes de tu experiencia de compra!</p>
+    </div>
+    <div class="footer">
+        <p>© 2023 Ecommerce Deportivo. Todos los derechos reservados.</p>
+    </div>
+</body>
+</html> 

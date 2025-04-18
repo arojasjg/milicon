@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Confirmación de Pedido</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            text-align: center;
+        }
+        .content {
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        .order-details {
+            margin: 20px 0;
+            border: 1px solid #ddd;
+            padding: 10px;
+        }
+        .product {
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .footer {
+            text-align: center;
+            padding: 10px;
+            font-size: 12px;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Confirmación de Pedido</h1>
+    </div>
+    <div class="content">
+        <p>Hola <strong th:text="${name}">Usuario</strong>,</p>
+        <p>¡Gracias por tu compra! Tu pedido ha sido confirmado y está siendo procesado.</p>
+        
+        <div class="order-details">
+            <p><strong>Número de Pedido:</strong> <span th:text="${orderId}">ORD-12345</span></p>
+            <p><strong>Fecha:</strong> <span th:text="${orderDate}">01/01/2023</span></p>
+            <p><strong>Total:</strong> <span th:text="${total}">$100.00</span></p>
+            
+            <h3>Productos:</h3>
+            <div class="product" th:each="product : ${products}">
+                <p><strong th:text="${product.name}">Producto</strong> x <span th:text="${product.quantity}">1</span></p>
+                <p>Precio: <span th:text="${product.price}">$50.00</span></p>
+            </div>
+            
+            <h3>Dirección de Envío:</h3>
+            <p th:text="${shippingAddress}">Calle Principal 123, Ciudad, País</p>
+        </div>
+        
+        <p>Te enviaremos una notificación cuando tu pedido sea enviado.</p>
+        <p>Si tienes alguna pregunta sobre tu pedido, no dudes en contactarnos.</p>
+    </div>
+    <div class="footer">
+        <p>© 2023 Ecommerce Deportivo. Todos los derechos reservados.</p>
+    </div>
+</body>
+</html> 

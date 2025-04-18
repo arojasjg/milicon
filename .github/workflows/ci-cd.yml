@@ -1,0 +1,180 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v2
+        with:
+          java-version: "17"
+          distribution: "adopt"
+
+      - name: Cache Maven packages
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      - name: Build and test with Maven
+        run: |
+          cd backend
+          mvn clean verify
+
+      - name: Upload backend test results
+        uses: actions/upload-artifact@v2
+        if: always()
+        with:
+          name: backend-test-results
+          path: backend/**/target/surefire-reports/
+
+  build-and-test-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: "16"
+
+      - name: Cache npm dependencies
+        uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        run: |
+          cd frontend
+          npm ci
+
+      - name: Run tests
+        run: |
+          cd frontend
+          npm test -- --coverage
+
+      - name: Upload frontend test results
+        uses: actions/upload-artifact@v2
+        if: always()
+        with:
+          name: frontend-test-results
+          path: frontend/coverage
+
+  build-docker-images:
+    needs: [build-and-test-backend, build-and-test-frontend]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push Eureka Server
+        uses: docker/build-push-action@v2
+        with:
+          context: ./backend/eureka-server
+          push: true
+          tags: miliconstore/eureka-server:latest
+
+      - name: Build and push API Gateway
+        uses: docker/build-push-action@v2
+        with:
+          context: ./backend/api-gateway
+          push: true
+          tags: miliconstore/api-gateway:latest
+
+      - name: Build and push User Service
+        uses: docker/build-push-action@v2
+        with:
+          context: ./backend/user-service
+          push: true
+          tags: miliconstore/user-service:latest
+
+      - name: Build and push Product Service
+        uses: docker/build-push-action@v2
+        with:
+          context: ./backend/product-service
+          push: true
+          tags: miliconstore/product-service:latest
+
+      - name: Build and push Order Service
+        uses: docker/build-push-action@v2
+        with:
+          context: ./backend/order-service
+          push: true
+          tags: miliconstore/order-service:latest
+
+      - name: Build and push Notification Service
+        uses: docker/build-push-action@v2
+        with:
+          context: ./backend/notification-service
+          push: true
+          tags: miliconstore/notification-service:latest
+
+      - name: Build and push Frontend
+        uses: docker/build-push-action@v2
+        with:
+          context: ./frontend
+          push: true
+          tags: miliconstore/frontend:latest
+
+      - name: Build and push Analytics Service
+        uses: docker/build-push-action@v2
+        with:
+          context: ./backend/analytics-service
+          push: true
+          tags: miliconstore/analytics-service:latest
+
+      - name: Build and push Recommendation Service
+        uses: docker/build-push-action@v2
+        with:
+          context: ./backend/recommendation-service
+          push: true
+          tags: miliconstore/recommendation-service:latest
+
+  deploy-to-kubernetes:
+    needs: build-docker-images
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v1
+
+      - name: Configure kubectl
+        run: |
+          mkdir -p $HOME/.kube
+          echo "${{ secrets.KUBE_CONFIG }}" > $HOME/.kube/config
+          chmod 600 $HOME/.kube/config
+
+      - name: Deploy to Kubernetes
+        run: |
+          kubectl apply -f kubernetes/mysql-deployment.yaml
+          kubectl apply -f kubernetes/eureka-deployment.yaml
+          kubectl apply -f kubernetes/api-gateway-deployment.yaml
+          kubectl apply -f kubernetes/user-service-deployment.yaml
+          kubectl apply -f kubernetes/product-service-deployment.yaml
+          kubectl apply -f kubernetes/order-service-deployment.yaml
+          kubectl apply -f kubernetes/notification-service-deployment.yaml
+          kubectl apply -f kubernetes/analytics-service-deployment.yaml
+          kubectl apply -f kubernetes/recommendation-service-deployment.yaml
+          kubectl apply -f kubernetes/frontend-deployment.yaml

@@ -1,0 +1,119 @@
+version: "3.8"
+
+services:
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    container_name: miliconstore-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: miliconstore
+      MYSQL_USER: miliconstore
+      MYSQL_PASSWORD: miliconstore
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - miliconstore-network
+
+  # Eureka Service Discovery
+  eureka-server:
+    build: ./backend/discovery-server
+    container_name: miliconstore-eureka
+    ports:
+      - "8761:8761"
+    networks:
+      - miliconstore-network
+
+  # API Gateway
+  api-gateway:
+    build: ./backend/api-gateway
+    container_name: miliconstore-api-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+    depends_on:
+      - eureka-server
+    networks:
+      - miliconstore-network
+
+  # User Service
+  user-service:
+    build: ./backend/user-service
+    container_name: miliconstore-user-service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/miliconstore_users
+      SPRING_DATASOURCE_USERNAME: miliconstore
+      SPRING_DATASOURCE_PASSWORD: miliconstore
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+    depends_on:
+      - mysql
+      - eureka-server
+    networks:
+      - miliconstore-network
+
+  # Product Service
+  product-service:
+    build: ./backend/product-service
+    container_name: miliconstore-product-service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/miliconstore_products
+      SPRING_DATASOURCE_USERNAME: miliconstore
+      SPRING_DATASOURCE_PASSWORD: miliconstore
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+    depends_on:
+      - mysql
+      - eureka-server
+    networks:
+      - miliconstore-network
+
+  # Order Service
+  order-service:
+    build: ./backend/order-service
+    container_name: miliconstore-order-service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/miliconstore_orders
+      SPRING_DATASOURCE_USERNAME: miliconstore
+      SPRING_DATASOURCE_PASSWORD: miliconstore
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+    depends_on:
+      - mysql
+      - eureka-server
+      - product-service
+    networks:
+      - miliconstore-network
+
+  # Notification Service
+  notification-service:
+    build: ./backend/notification-service
+    container_name: miliconstore-notification-service
+    environment:
+      SPRING_MAIL_HOST: smtp.gmail.com
+      SPRING_MAIL_PORT: 587
+      SPRING_MAIL_USERNAME: ${MAIL_USERNAME}
+      SPRING_MAIL_PASSWORD: ${MAIL_PASSWORD}
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+    depends_on:
+      - eureka-server
+    networks:
+      - miliconstore-network
+
+  # Frontend
+  frontend:
+    build: ./frontend
+    container_name: miliconstore-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - api-gateway
+    networks:
+      - miliconstore-network
+
+networks:
+  miliconstore-network:
+    driver: bridge
+
+volumes:
+  mysql-data:
