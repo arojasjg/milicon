@@ -27,34 +27,71 @@ import 'react-toastify/dist/ReactToastify.css';
 
 import './App.css';
 
-/**
- * Main App component
+/*
+ * Main App component - the root of our UI
+ * AR - 2023-03-15 
+ * 
+ * TODOS:
+ * - Add error boundaries
+ * - Implement proper loading states
+ * - Fix mobile menu positioning issues 
+ * - Dark mode toggle
  */
 const App = () => {
   const dispatch = useDispatch();
   const isAuthenticated = useSelector(selectIsAuthenticated);
   
-  // Initialize app - fetch user profile if authenticated
+  // Initialize app - fetch user profile if token exists
   useEffect(() => {
+    // Only fetch user data if we're logged in to avoid 401s
     if (isAuthenticated) {
+      // FIXME: sometimes we get 401 here even with valid token
+      // might be race condition with token refresh
       dispatch(fetchUserProfile());
     }
   }, [dispatch, isAuthenticated]);
+  
+  // Debugging - remove before prod
+  // console.log('App render, auth state:', isAuthenticated);
+  
+  // funcion para renderizar la homepage
+  // podria moverla a un componente aparte pero por ahora la dejo aqui
+  const renderHome = () => {
+    return (
+      <div className="welcome-page">
+        <h1>¡Bienvenido a MiliconStore!</h1>
+        <p>Tu tienda de artículos deportivos</p>
+        <div className="welcome-links">
+          <Link to="/products" className="welcome-link">Ver Productos</Link>
+          <Link to="/notifications" className="welcome-link">Notificaciones</Link>
+          <Link to="/profile" className="welcome-link">Mi Perfil</Link>
+          <Link to="/cart" className="welcome-link">Carrito</Link>
+        </div>
+      </div>
+    );
+  };
   
   return (
     <NotificationProvider>
       <Router>
         <div className="app">
+          {/* Main navigation - might break out to component later */}
           <nav className="app-nav">
             <div className="nav-logo">MiliconStore</div>
             <div className="nav-links">
-              <Link to="/" className="nav-link">Home</Link>
-              <Link to="/products" className="nav-link">Products</Link>
-              <Link to="/profile" className="nav-link">User Profile</Link>
-              <Link to="/notifications" className="nav-link">Notification Demo</Link>
-              <Link to="/cart" className="nav-link">Cart</Link>
-              <Link to="/login" className="nav-link">Login</Link>
-              <Link to="/register" className="nav-link">Register</Link>
+              <Link to="/" className="nav-link">Inicio</Link>
+              <Link to="/products" className="nav-link">Productos</Link>
+              <Link to="/profile" className="nav-link">Mi Perfil</Link>
+              <Link to="/notifications" className="nav-link">Notificaciones</Link>
+              <Link to="/cart" className="nav-link">Carrito</Link>
+              {!isAuthenticated ? (
+                <>
+                  <Link to="/login" className="nav-link">Iniciar Sesión</Link>
+                  <Link to="/register" className="nav-link">Registrarse</Link>
+                </>
+              ) : (
+                <Link to="/logout" className="nav-link">Cerrar Sesión</Link>
+              )}
             </div>
           </nav>
           
@@ -73,43 +110,53 @@ const App = () => {
               {/* Cart Routes */}
               <Route path="/cart" element={<ShoppingCart />} />
               
-              {/* Checkout Routes (Protected) */}
-              <Route path="/checkout" element={
-                <ProtectedRoute>
-                  <CheckoutPage />
-                </ProtectedRoute>
-              } />
-              <Route path="/order-confirmation" element={
-                <ProtectedRoute>
-                  <OrderConfirmationPage />
-                </ProtectedRoute>
-              } />
+              {/* Checkout Routes - protected */}
+              <Route 
+                path="/checkout" 
+                element={
+                  <ProtectedRoute>
+                    <CheckoutPage />
+                  </ProtectedRoute>
+                } 
+              />
               
-              {/* Protected Routes */}
-              <Route path="/profile" element={
-                <ProtectedRoute>
-                  <UserProfile />
-                </ProtectedRoute>
-              } />
+              <Route 
+                path="/order-confirmation" 
+                element={
+                  <ProtectedRoute>
+                    <OrderConfirmationPage />
+                  </ProtectedRoute>
+                } 
+              />
               
-              {/* Add other protected routes here */}
+              {/* User Routes - protected */}
+              <Route 
+                path="/profile" 
+                element={
+                  <ProtectedRoute>
+                    <UserProfile />
+                  </ProtectedRoute>
+                } 
+              />
               
-              {/* Other Routes */}
+              {/* Demo Routes */}
               <Route path="/notifications" element={<NotificationDemo />} />
-              <Route path="/" element={<div className="welcome-page">
-                <h1>Welcome to MiliconStore!</h1>
-                <p>Your one-stop shop for premium sports equipment</p>
-                <div className="welcome-links">
-                  <Link to="/products" className="welcome-link">Browse Products</Link>
-                  <Link to="/notifications" className="welcome-link">View Notification Demo</Link>
-                  <Link to="/profile" className="welcome-link">Go to User Profile</Link>
-                  <Link to="/cart" className="welcome-link">View Cart</Link>
+              
+              {/* Homepage */}
+              <Route path="/" element={renderHome()} />
+
+              {/* 404 - keep as last route */}
+              <Route path="*" element={
+                <div className="not-found">
+                  <h2>404 - Página no encontrada</h2>
+                  <p>La página que buscas no existe o fue movida.</p>
+                  <Link to="/" className="home-link">Volver al inicio</Link>
                 </div>
-              </div>} />
+              } />
             </Routes>
           </main>
           
-          {/* Add ToastContainer for react-toastify */}
+          {/* Toast notifications container */}
           <ToastContainer 
             position="bottom-right"
             autoClose={5000}

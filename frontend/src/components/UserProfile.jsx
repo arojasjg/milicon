@@ -3,16 +3,17 @@ import { useNotifications } from '../hooks/useNotifications';
 import notificationService from '../services/notificationService';
 import './UserProfile.css';
 
-/**
- * UserProfile component demonstrating form handling with notification integration
- */
+// Componente para mostrar el perfil del usuario
+// Ultima actualizacion: mayo 2023
+// TODO: conectar con la API real cuando este lista
 const UserProfile = () => {
   const { success, error, info, notify } = useNotifications();
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('profile');
   
-  // Initial user data state
-  const [userData, setUserData] = useState({
+  // datos fake para pruebas - reemplazar con API
+  // FIXME: a veces se borra cuando vuelves para atras
+  const [data, setData] = useState({
     firstName: 'John',
     lastName: 'Doe',
     email: 'john.doe@example.com',
@@ -20,55 +21,66 @@ const UserProfile = () => {
     bio: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'
   });
   
-  // Form error state
-  const [formErrors, setFormErrors] = useState({});
+  // errores del formulario
+  const [errors, setErrors] = useState({});
   
-  // Handle input change
-  const handleInputChange = (e) => {
+  // handle para cambios en inputs
+  function handleChange(e) {
     const { name, value } = e.target;
-    setUserData({
-      ...userData,
+    
+    // actualizar estado con nuevo valor
+    setData({
+      ...data,
       [name]: value
     });
     
-    // Clear error for this field when user types
-    if (formErrors[name]) {
-      setFormErrors({
-        ...formErrors,
-        [name]: null
-      });
+    // quitar error cuando el usuario escribe
+    if (errors[name]) {
+      let newErrors = {...errors};
+      delete newErrors[name]; // mejor que poner null
+      setErrors(newErrors);
     }
   };
   
-  // Validate form data
-  const validateForm = () => {
-    const errors = {};
+  // validacion del formulario
+  const validate = () => {
+    let err = {};
+    let valid = true;
     
-    if (!userData.firstName.trim()) {
-      errors.firstName = 'First name is required';
+    // campos obligatorios
+    if (!data.firstName || !data.firstName.trim()) {
+      err.firstName = 'Nombre es obligatorio';
+      valid = false;
     }
     
-    if (!userData.lastName.trim()) {
-      errors.lastName = 'Last name is required';
+    if (!data.lastName || !data.lastName.trim()) {
+      err.lastName = 'Apellido es obligatorio';
+      valid = false;
     }
     
-    if (!userData.email.trim()) {
-      errors.email = 'Email is required';
-    } else if (!/\S+@\S+\.\S+/.test(userData.email)) {
-      errors.email = 'Email is invalid';
+    // validar email con regex simple
+    // esto lo saque de stackoverflow pero funciona
+    if (!data.email || !data.email.trim()) {
+      err.email = 'Email es obligatorio';
+      valid = false;
+    } else if (!/\S+@\S+\.\S+/.test(data.email)) {
+      err.email = 'Email no válido';
+      valid = false;
     }
     
-    setFormErrors(errors);
-    return Object.keys(errors).length === 0;
+    setErrors(err);
+    return valid;
   };
   
-  // Handle form submission
-  const handleProfileSubmit = async (e) => {
+  // manejar submit del form de perfil
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!validateForm()) {
-      error('Please fix the errors in the form', {
-        title: 'Validation Error',
+    // primero validar form
+    if (!validate()) {
+      // mostrar error
+      error('Por favor corrige los errores', {
+        title: 'Error de validación',
         autoClose: true,
         duration: 5000
       });
@@ -77,22 +89,25 @@ const UserProfile = () => {
     
     setLoading(true);
     
-    // Simulate API call
-    const updateProfileApi = () => {
+    // simulacion de llamada API - luego reemplazar
+    const updateApi = () => {
       return new Promise((resolve, reject) => {
+        // delay artificial para ver el loading
         setTimeout(() => {
-          if (Math.random() > 0.2) { // 80% success rate for demo
+          // exito o error random para probar 
+          if (Math.random() > 0.2) { 
             resolve({
               success: true,
-              data: userData,
-              message: 'Profile updated successfully'
+              data: data,
+              message: 'Perfil actualizado correctamente'
             });
           } else {
+            // simular error de API
             reject({
               response: {
                 data: {
-                  message: 'Server error occurred',
-                  error: 'Internal server error'
+                  message: 'Error en servidor',
+                  error: 'Error interno'
                 },
                 status: 500
               }
@@ -103,81 +118,90 @@ const UserProfile = () => {
     };
     
     try {
-      // Use notificationService to handle API call with notifications
-      const notifications = { success, error, info, notify };
+      /* 
+        Uso mi servicio de notificaciones para manejar la llamada
+        Me ahorra mucho codigo en todos lados
+      */
+      const n = { success, error, info, notify };
       await notificationService.handleApiCall(
-        updateProfileApi,
-        notifications,
+        updateApi,
+        n,
         {
           successOptions: {
-            title: 'Profile Updated',
-            message: 'Your profile has been updated successfully',
+            title: 'Perfil Actualizado',
+            message: 'Tu perfil ha sido actualizado correctamente',
             duration: 5000
           },
           errorOptions: {
-            title: 'Update Failed',
+            title: 'Error de Actualización',
             duration: 7000
           }
         }
       );
-    } catch (error) {
-      console.error('Profile update error:', error);
+    } catch (e) {
+      // loggear pero no crashear app
+      console.error('Error al actualizar perfil:', e);
+      // ya mostramos error desde service
     } finally {
       setLoading(false);
     }
   };
   
-  // Handle address submission with loading notification
+  // manejar direcciones con notification loading
+  // TODO: refactorizar esto junto con el anterior para no repetir codigo
   const handleAddressSubmit = async (e) => {
     e.preventDefault();
     
     try {
-      // Simulate API call with loading notification
-      const updateAddressApi = () => {
+      // simulacion de API con notificacion de loading
+      const updateDirApi = () => {
         return new Promise((resolve) => {
+          // aca podria fallar pero no lo necesito para demo
           setTimeout(() => {
             resolve({
               success: true,
-              message: 'Address updated successfully'
+              message: 'Dirección actualizada'
             });
-          }, 3000);
+          }, 3000); // extra lento para mostrar loading
         });
       };
       
-      const notifications = { success, error, info, notify };
+      const n = { success, error, info, notify };
       await notificationService.handleLoadingOperation(
-        updateAddressApi,
-        notifications,
+        updateDirApi,
+        n,
         {
-          loadingTitle: 'Updating Address',
-          loadingMessage: 'Please wait while we update your address...',
-          successTitle: 'Address Updated',
-          successMessage: 'Your address has been successfully updated'
+          loadingTitle: 'Actualizando Dirección',
+          loadingMessage: 'Espera mientras actualizamos tu dirección...',
+          successTitle: 'Dirección Actualizada',
+          successMessage: 'Tu dirección ha sido actualizada correctamente'
         }
       );
-    } catch (error) {
-      console.error('Address update error:', error);
+    } catch (e) {
+      console.error('Error en dirección:', e);
     }
   };
   
-  // Delete address with confirmation
+  // borrar dirección con confirmación
   const handleDeleteAddress = () => {
+    // usando el sistema de notificaciones para confirmar
     notify({
       type: 'warning',
-      title: 'Confirm Deletion',
-      message: 'Are you sure you want to delete this address?',
-      autoClose: false,
+      title: 'Confirmar Eliminación',
+      message: '¿Estás seguro de eliminar esta dirección?',
+      autoClose: false, // no cerrar automaticamente los dialogs
       actions: [
         {
-          label: 'Delete',
+          label: 'Eliminar',
           onClick: (close) => {
-            // Close this notification
+            // cerrar notificacion
             close();
             
-            // Show success notification after "deletion"
+            // mostrar notificacion exito después del "borrado"
+            // pequeño delay para q se vea mas natural
             setTimeout(() => {
-              success('Address has been deleted', {
-                title: 'Address Deleted',
+              success('Dirección eliminada', {
+                title: 'Dirección Eliminada',
                 duration: 5000
               });
             }, 500);
@@ -185,13 +209,15 @@ const UserProfile = () => {
           variant: 'primary'
         },
         {
-          label: 'Cancel',
+          label: 'Cancelar',
           onClick: (close) => close(),
           variant: 'secondary'
         }
       ]
     });
   };
+  
+  // console.log("rendering profile", data);
   
   return (
     <div className="user-profile-container">
@@ -200,19 +226,19 @@ const UserProfile = () => {
           className={`tab-btn ${activeTab === 'profile' ? 'active' : ''}`}
           onClick={() => setActiveTab('profile')}
         >
-          Profile
+          Perfil
         </button>
         <button 
           className={`tab-btn ${activeTab === 'addresses' ? 'active' : ''}`}
           onClick={() => setActiveTab('addresses')}
         >
-          Addresses
+          Direcciones
         </button>
         <button 
           className={`tab-btn ${activeTab === 'orders' ? 'active' : ''}`}
           onClick={() => setActiveTab('orders')}
         >
-          Orders
+          Pedidos
         </button>
       </div>
       
@@ -220,74 +246,74 @@ const UserProfile = () => {
         {activeTab === 'profile' && (
           <div className="profile-tab">
             <div className="profile-header">
-              <h2>Profile Information</h2>
+              <h2>Información de Perfil</h2>
             </div>
             
-            <form className="profile-form" onSubmit={handleProfileSubmit}>
-              <div className={`form-group ${formErrors.firstName ? 'has-error' : ''}`}>
-                <label htmlFor="firstName">First Name</label>
+            <form className="profile-form" onSubmit={handleSubmit}>
+              <div className={`form-group ${errors.firstName ? 'has-error' : ''}`}>
+                <label htmlFor="firstName">Nombre</label>
                 <input
                   type="text"
                   id="firstName"
                   name="firstName"
-                  value={userData.firstName}
-                  onChange={handleInputChange}
-                  className={formErrors.firstName ? 'input-error' : ''}
+                  value={data.firstName}
+                  onChange={handleChange}
+                  className={errors.firstName ? 'input-error' : ''}
                 />
-                {formErrors.firstName && (
-                  <div className="error-message">{formErrors.firstName}</div>
+                {errors.firstName && (
+                  <div className="error-message">{errors.firstName}</div>
                 )}
               </div>
               
-              <div className={`form-group ${formErrors.lastName ? 'has-error' : ''}`}>
-                <label htmlFor="lastName">Last Name</label>
+              <div className={`form-group ${errors.lastName ? 'has-error' : ''}`}>
+                <label htmlFor="lastName">Apellido</label>
                 <input
                   type="text"
                   id="lastName"
                   name="lastName"
-                  value={userData.lastName}
-                  onChange={handleInputChange}
-                  className={formErrors.lastName ? 'input-error' : ''}
+                  value={data.lastName}
+                  onChange={handleChange}
+                  className={errors.lastName ? 'input-error' : ''}
                 />
-                {formErrors.lastName && (
-                  <div className="error-message">{formErrors.lastName}</div>
+                {errors.lastName && (
+                  <div className="error-message">{errors.lastName}</div>
                 )}
               </div>
               
-              <div className={`form-group ${formErrors.email ? 'has-error' : ''}`}>
+              <div className={`form-group ${errors.email ? 'has-error' : ''}`}>
                 <label htmlFor="email">Email</label>
                 <input
                   type="email"
                   id="email"
                   name="email"
-                  value={userData.email}
-                  onChange={handleInputChange}
-                  className={formErrors.email ? 'input-error' : ''}
+                  value={data.email}
+                  onChange={handleChange}
+                  className={errors.email ? 'input-error' : ''}
                 />
-                {formErrors.email && (
-                  <div className="error-message">{formErrors.email}</div>
+                {errors.email && (
+                  <div className="error-message">{errors.email}</div>
                 )}
               </div>
               
               <div className="form-group">
-                <label htmlFor="phone">Phone</label>
+                <label htmlFor="phone">Teléfono</label>
                 <input
                   type="text"
                   id="phone"
                   name="phone"
-                  value={userData.phone}
-                  onChange={handleInputChange}
+                  value={data.phone}
+                  onChange={handleChange}
                 />
               </div>
               
               <div className="form-group">
-                <label htmlFor="bio">Bio</label>
+                <label htmlFor="bio">Biografía</label>
                 <textarea
                   id="bio"
                   name="bio"
                   rows="4"
-                  value={userData.bio}
-                  onChange={handleInputChange}
+                  value={data.bio}
+                  onChange={handleChange}
                 ></textarea>
               </div>
               
@@ -297,19 +323,19 @@ const UserProfile = () => {
                   className="save-btn"
                   disabled={loading}
                 >
-                  {loading ? 'Saving...' : 'Save Changes'}
+                  {loading ? 'Guardando...' : 'Guardar Cambios'}
                 </button>
                 <button 
                   type="button" 
                   className="cancel-btn"
                   onClick={() => {
-                    info('Changes discarded', {
-                      title: 'Cancelled',
+                    info('Cambios descartados', {
+                      title: 'Cancelado',
                       duration: 3000
                     });
                   }}
                 >
-                  Cancel
+                  Cancelar
                 </button>
               </div>
             </form>
@@ -319,47 +345,47 @@ const UserProfile = () => {
         {activeTab === 'addresses' && (
           <div className="addresses-tab">
             <div className="profile-header">
-              <h2>Your Addresses</h2>
+              <h2>Tus Direcciones</h2>
             </div>
             
             <div className="address-container">
               <div className="address-card">
-                <h3>Home</h3>
+                <h3>Casa</h3>
                 <p>123 Main Street</p>
                 <p>Apt 4B</p>
                 <p>New York, NY 10001</p>
                 <div className="address-actions">
                   <button className="edit-address-btn" onClick={handleAddressSubmit}>
-                    Edit
+                    Editar
                   </button>
                   <button className="delete-address-btn" onClick={handleDeleteAddress}>
-                    Delete
+                    Eliminar
                   </button>
                 </div>
               </div>
               
               <div className="address-card">
-                <h3>Work</h3>
+                <h3>Trabajo</h3>
                 <p>456 Office Plaza</p>
                 <p>Suite 300</p>
                 <p>New York, NY 10018</p>
                 <div className="address-actions">
                   <button className="edit-address-btn" onClick={handleAddressSubmit}>
-                    Edit
+                    Editar
                   </button>
                   <button className="delete-address-btn" onClick={handleDeleteAddress}>
-                    Delete
+                    Eliminar
                   </button>
                 </div>
               </div>
               
               <button className="add-address-btn" onClick={() => {
-                info('This feature is coming soon!', {
-                  title: 'Not Implemented',
+                info('Esta función estará disponible próximamente!', {
+                  title: 'No implementado',
                   duration: 3000
                 });
               }}>
-                Add New Address
+                Añadir Nueva Dirección
               </button>
             </div>
           </div>
@@ -368,18 +394,18 @@ const UserProfile = () => {
         {activeTab === 'orders' && (
           <div className="orders-tab">
             <div className="profile-header">
-              <h2>Your Orders</h2>
+              <h2>Tus Pedidos</h2>
             </div>
             
             <div className="empty-state">
-              <p>You don't have any orders yet.</p>
+              <p>No tienes pedidos todavía.</p>
               <button className="shop-now-btn" onClick={() => {
-                info('Shop page coming soon!', {
-                  title: 'Not Implemented',
+                info('Tienda próximamente!', {
+                  title: 'No implementado',
                   duration: 3000
                 });
               }}>
-                Shop Now
+                Comprar Ahora
               </button>
             </div>
           </div>
